@@ -206,7 +206,7 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
                 </svg>
               </button>
 
-              {createPortal(
+              {typeof document !== 'undefined' ? createPortal(
                 <AnimatePresence>
                   {isMenuOpen && (
                     <motion.div
@@ -242,7 +242,7 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
                   )}
                 </AnimatePresence>,
                 document.body
-              )}
+              ) : null}
             </div>
             {/* Language Switcher */}
             <div className="relative z-50" ref={languageDropdownRef} style={{ zIndex: 50 }}>
