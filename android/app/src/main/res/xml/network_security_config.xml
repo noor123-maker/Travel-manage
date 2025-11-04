@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext (HTTP) only for the local development hosts used by Capacitor dev server -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.10.10.170</domain>
+    </domain-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+    <!-- Keep cleartext disabled by default for other hosts -->
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

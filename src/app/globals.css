@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+:root {
+  /* Light palette */
+    --bg: #C2E2FA;
+    --card: #ffffff;
+    --muted: #6b7280;
+    --heading: #000000;
+    --para: #000000;
+    --accent: #3b82f6; /* primary blue */
+    --accent-2: #6b46c1; /* vivid purple (accent) */
+    --glass-bg: rgba(255,255,255,0.9);
+    --border: rgba(15, 23, 42, 0.06);
+    --shadow: 0 10px 30px rgba(0,0,0,0.05);
+  --text: #000000;
+  --accent: #667eea; /* indigo */
+  --accent-2: #764ba2; /* purple */
+  --glass-bg: rgba(255,255,255,0.06);
+  --border: rgba(15,23,42,0.06);
+  --shadow: 0 6px 18px rgba(102,126,234,0.12);
+
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark palette (system fallback) */
+    --bg: #071029; /* deep navy */
+    --card: rgba(16,24,40,0.6);
+    --muted: #94a3b8;
+    --text: #e6eef8;
+    --accent: #4f46e5; /* indigo-600 */
+    --accent-2: #7c3aed; /* purple */
+    --glass-bg: rgba(10,20,40,0.45);
+    --border: rgba(255,255,255,0.06);
+    --shadow: 0 8px 30px rgba(12, 27, 63, 0.6);
+
+    --background: var(--bg);
+    --foreground: var(--text);
+  }
+}
+
+/* Ensure .dark class enforces pure black/white theme */
+.dark {
+  /* Strong dark theme override */
+  --bg: #040617;
+  --card: rgba(8,12,20,0.6);
+  --muted: #94a3b8;
+  --text: #eef2ff;
+  --accent: #4f46e5;
+  --accent-2: #7c3aed;
+  --glass-bg: rgba(6,10,20,0.6);
+  --border: rgba(255,255,255,0.06);
+  --shadow: 0 10px 40px rgba(4,8,20,0.6);
+
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 300ms ease, color 300ms ease;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Responsive base font sizing for better mobile display */
+html {
+  /* Make base font smaller on phones: clamp between 13px and 16px for tighter mobile layout */
+  font-size: clamp(13px, 2.2vw, 16px);
+}
+
+body {
+  font-size: 1rem; /* 1rem now scales with the html font-size above */
+  line-height: 1.5;
+}
+
+/* Glassmorphism styles */
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: background-color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.dark .glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Gradient backgrounds */
+.gradient-bg {
+  background: var(--bg);
+}
+
+.dark .gradient-bg {
+  background: linear-gradient(135deg, #0f172a 0%, var(--accent-2) 100%);
+}
+
+/* Smooth transition for common UI elements */
+.btn, button, .glass, .gradient-bg, nav, .card {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, box-shadow 300ms ease, transform 200ms ease;
+}
+
+/* Theme-aware utility classes */
+.text-muted { color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; box-shadow: var(--shadow); }
+
+/* Toggle glow effect */
+.theme-glow { box-shadow: 0 6px 18px rgba(127, 90, 255, 0.14); }
+
+/* Button variants using CSS variables for consistent theming */
+.btn.primary { background: var(--accent); color: #fff; border: 1px solid transparent; }
+.btn.primary:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.12); }
+.btn.secondary { background: rgba(255,255,255,0.03); color: var(--foreground); border: 1px solid var(--border); }
+.btn.secondary:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+.btn.danger { background: linear-gradient(90deg, rgba(220,38,38,0.12), rgba(220,38,38,0.08)); color: #fff; border: 1px solid rgba(220,38,38,0.12); }
+
+/* Small utility for toggle glow */
+.toggle-glow { transition: box-shadow 220ms ease; }
+.toggle-glow:hover { box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 18%, transparent); }
+
+/* Animation utilities */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* FORCE: In light mode, make all text black while leaving backgrounds intact.
+   This is intentionally global and uses !important to override utility classes
+   (e.g., Tailwind's text-white) so all visible text becomes black in light mode.
+   Dark mode remains untouched because .dark class overrides variables. */
+:root:not(.dark) *,
+:root:not(.dark) *::before,
+:root:not(.dark) *::after {
+  color: #000000 !important;
+}
