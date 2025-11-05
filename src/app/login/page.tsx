@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+// avoid `useSearchParams` from next/navigation here because it requires a
+// suspense boundary during SSR prerendering; instead read URL params on
+// the client inside useEffect (prevents build-time prerender errors)
 import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/lib/supabaseClient";
 import * as companyStorage from '@/lib/companyStorage';
@@ -13,19 +15,24 @@ import GlassButton from "@/components/GlassButton";
 
 export default function LoginPage() {
   const { t, loading: translationsLoading } = useTranslation();
-  const searchParams = useSearchParams();
+  const [rawNextState, setRawNextState] = useState<string | null>(null);
 
   const [isLogin, setIsLogin] = useState(true);
   // Allow opening the page directly in signup mode via ?mode=signup
+  // and read an optional `next` redirect param. We read these from
+  // window.location.search inside useEffect so nothing runs during SSR.
   useEffect(() => {
     try {
-      const m = searchParams?.get('mode');
+      const params = new URLSearchParams(window.location.search);
+      const m = params.get('mode');
       if (m === 'signup') setIsLogin(false);
       if (m === 'signin') setIsLogin(true);
+      const nextParam = params.get('next');
+      if (nextParam) setRawNextState(nextParam);
     } catch (e) {
       // ignore
     }
-    // only want to run once on mount; searchParams is stable in Next's client
+    // only want to run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [email, setEmail] = useState("");
@@ -39,7 +46,8 @@ export default function LoginPage() {
   const [isError, setIsError] = useState(false);
 
   // Safe next param handling: only allow same-origin path or relative values
-  const rawNext = (searchParams?.get("next") || "/dashboard") as string;
+  // use the client-derived next param when available
+  const rawNext = (rawNextState || "/dashboard") as string;
   const safeNext = (() => {
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost";

@@ -1,21 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import GlassCard from '@/components/GlassCard';
 import GlassButton from '@/components/GlassButton';
 
 export default function ResetPasswordPage() {
-  const params = useSearchParams();
-  const token = params?.get('token') || '';
+  const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!token) setMessage('No token provided');
-  }, [token]);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('token') || '';
+      setToken(t);
+      if (!t) setMessage('No token provided');
+    } catch (e) {
+      setMessage('No token provided');
+    }
+  }, []);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
