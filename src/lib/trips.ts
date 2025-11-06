@@ -166,24 +166,23 @@ export async function getAllTrips(): Promise<Trip[]> {
     console.warn('Supabase not configured, returning sample data');
     return getSampleTrips();
   }
-
+  // Use a server-side endpoint to fetch trips joined with company info.
+  // Client-side anonymous Supabase queries are blocked from reading `companies`
+  // by Row Level Security; the server endpoint uses the service role key to
+  // return company names for the public browse page.
   try {
-    const { data, error } = await supabase
-      .from('trips')
-      .select(`
-        *,
-        company:companies(name, contact_number)
-      `)
-      .gte('departure_time', new Date().toISOString())
-      .order('departure_time', { ascending: true });
-
-    if (error) {
-      throw new Error(`Failed to fetch trips: ${error.message}`);
+    const res = await fetch('/api/public/trips');
+    const txt = await res.text();
+    let json: any = null;
+    try { json = txt ? JSON.parse(txt) : null; } catch {}
+    if (!res.ok) {
+      console.warn('Server /api/public/trips returned error, falling back to sample trips', json || txt);
+      return getSampleTrips();
     }
 
-    return data || [];
-  } catch (error) {
-    console.warn('Failed to fetch from Supabase, returning sample data:', error);
+    return json || [];
+  } catch (err) {
+    console.warn('Failed to fetch public trips endpoint, returning sample data:', err);
     return getSampleTrips();
   }
 }
