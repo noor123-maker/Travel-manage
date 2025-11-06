@@ -283,6 +283,18 @@ export async function createTrip(tripData: TripFormData): Promise<Trip> {
     if (token) {
       // prepare body: ensure arrival_time exists to satisfy DB NOT NULL
       const sendBody: any = { ...tripData };
+      // Normalize datetime-local inputs (which are local without timezone) to
+      // full ISO strings with timezone before sending to the server. This
+      // prevents timezone shifts where a local '2025-11-06T03:00' would be
+      // interpreted incorrectly by Postgres/Supabase.
+      const localPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+      if (sendBody.departure_time && typeof sendBody.departure_time === 'string' && localPattern.test(sendBody.departure_time)) {
+        // treat as local time and convert to ISO (UTC) representation
+        sendBody.departure_time = new Date(sendBody.departure_time).toISOString();
+      }
+      if (sendBody.arrival_time && typeof sendBody.arrival_time === 'string' && localPattern.test(sendBody.arrival_time)) {
+        sendBody.arrival_time = new Date(sendBody.arrival_time).toISOString();
+      }
       if (!sendBody.arrival_time) sendBody.arrival_time = sendBody.departure_time ?? new Date().toISOString();
 
       const res = await fetch('/api/trips', {

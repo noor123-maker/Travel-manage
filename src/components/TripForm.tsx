@@ -20,7 +20,18 @@ export default function TripForm({ initialData, onSubmit, onCancel, isLoading }:
     from_city: initialData?.from_city || '',
     to_city: initialData?.to_city || '',
     bus_type: initialData?.bus_type || '',
-    departure_time: initialData?.departure_time || '',
+    // datetime-local expects a local value like 'YYYY-MM-DDTHH:mm'. If an ISO
+    // string with timezone is provided (e.g. from the server), convert it to a
+    // local-friendly input value so editing doesn't shift timezones.
+    departure_time: initialData?.departure_time ? (() => {
+      try {
+        const d = new Date(initialData.departure_time as string);
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      } catch (e) {
+        return initialData.departure_time as string;
+      }
+    })() : '',
   contact_number: initialData?.contact_number || '',
   });
 
