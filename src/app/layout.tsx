@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import ClientAuthProvider from '@/components/ClientAuthProvider';
 import AndroidBackButtonHandler from '@/components/AndroidBackButtonHandler';
 import Navbar from '@/components/Navbar';
+import RefreshOnPull from '@/components/RefreshOnPull';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
               <ClientAuthProvider>
                <AndroidBackButtonHandler />
               <Navbar />
+              <RefreshOnPull />
               <div className="pt-16">{/* reserve space for fixed navbar (h-16) */}
                 {children}
               </div>
