@@ -33,9 +33,28 @@ export default function BrowsePage() {
 
   const formatDateTime = (dateTime: string) => {
     if (!dateTime) return '';
+    const localPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    if (localPattern.test(dateTime)) {
+      const [datePart, timePart] = dateTime.split('T');
+      const [year, month, day] = datePart.split('-').map((s) => parseInt(s, 10));
+      const [hourStr, minuteStr] = timePart.split(':');
+      let hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+      const second = 0;
+      const dayStr = pad(day);
+      const monthStr = pad(month);
+      const yearStr = year.toString();
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12;
+      if (hour === 0) hour = 12;
+      const hourStr12 = pad(hour);
+      return `${dayStr}/${monthStr}/${yearStr}, ${hourStr12}:${pad(minute)}:${pad(second)} ${ampm}`;
+    }
+
     const d = new Date(dateTime);
     if (isNaN(d.getTime())) return '';
-    const pad = (n: number) => n.toString().padStart(2, '0');
     const day = pad(d.getDate());
     const month = pad(d.getMonth() + 1);
     const year = d.getFullYear();
@@ -50,23 +69,42 @@ export default function BrowsePage() {
   };
   const formatDateOnly = (dateTime: string) => {
     if (!dateTime) return '';
+    const localPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    if (localPattern.test(dateTime)) {
+      const [datePart] = dateTime.split('T');
+      const [year, month, day] = datePart.split('-').map((s) => parseInt(s, 10));
+      return `${pad(day)}/${pad(month)}/${year}`;
+    }
     const d = new Date(dateTime);
     if (isNaN(d.getTime())) return '';
-    const pad = (n: number) => n.toString().padStart(2, '0');
     return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
   };
   const formatTimeOnly = (dateTime: string) => {
     if (!dateTime) return '';
+    const localPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    if (localPattern.test(dateTime)) {
+      const [, timePart] = dateTime.split('T');
+      const [hourStr, minuteStr] = timePart.split(':');
+      let hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+      const second = 0;
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12;
+      if (hour === 0) hour = 12;
+      return `${pad(hour)}:${pad(minute)}:${pad(second)} ${ampm}`;
+    }
     const d = new Date(dateTime);
     if (isNaN(d.getTime())) return '';
-    const pad = (n: number) => n.toString().padStart(2, '0');
+    const pad2 = (n: number) => n.toString().padStart(2, '0');
     let hours = d.getHours();
-    const minutes = pad(d.getMinutes());
-    const seconds = pad(d.getSeconds());
+    const minutes = pad2(d.getMinutes());
+    const seconds = pad2(d.getSeconds());
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     if (hours === 0) hours = 12;
-    const hourStr = pad(hours);
+    const hourStr = pad2(hours);
     return `${hourStr}:${minutes}:${seconds} ${ampm}`;
   };
 
@@ -200,21 +238,21 @@ export default function BrowsePage() {
                       <div>
                         <p className="text-sm font-medium text-white/80">{t('departure')}</p>
                         <div className="mt-2 p-3 rounded-lg bg-white/5 border border-white/10">
-                          <p className="text-white font-semibold">{formatDateOnly(trip.departure_time)}</p>
+                          <p className="text-white font-semibold">{formatDateOnly(trip.departure_time_local ?? trip.departure_time)}</p>
                         </div>
                       </div>
 
                       <div>
                         <p className="text-sm font-medium text-white/80">{t('solar')}</p>
                         <div className="mt-2 p-3 rounded-lg bg-white/5 border border-white/10">
-                          <p className="text-white font-semibold">{formatJalaaliFromISO(trip.departure_time)}</p>
+                          <p className="text-white font-semibold">{formatJalaaliFromISO(trip.departure_time_local ? `${trip.departure_time_local}:00` : trip.departure_time)}</p>
                         </div>
                       </div>
 
                       <div className="flex flex-col items-center justify-center">
                         <p className="text-sm font-medium text-white/80">{t('time')}</p>
                         <div className="mt-2 px-5 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-500 text-white font-extrabold text-2xl shadow-lg">
-                          {formatTimeOnly(trip.departure_time)}
+                          {formatTimeOnly(trip.departure_time_local ?? trip.departure_time)}
                         </div>
                       </div>
                     </div>

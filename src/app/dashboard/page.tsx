@@ -211,6 +211,34 @@ export default function DashboardPage() {
 
   const formatDateTime = (dateTime: string) => {
     if (!dateTime) return '';
+    // If the caller passed an original 'datetime-local' string (YYYY-MM-DDTHH:mm)
+    // treat it as a local wall-clock and format it without applying timezone
+    // conversions. Otherwise fall back to Date parsing for ISO instants.
+    const localPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+    if (localPattern.test(dateTime)) {
+      const [datePart, timePart] = dateTime.split('T');
+      const [year, month, day] = datePart.split('-').map((s) => parseInt(s, 10));
+      const [hourStr, minuteStr] = timePart.split(':');
+      let hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+      const second = 0;
+
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const dayStr = pad(day);
+      const monthStr = pad(month);
+      const yearStr = year.toString();
+
+      // 12-hour time with seconds and AM/PM
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12;
+      if (hour === 0) hour = 12;
+      const hourStr12 = pad(hour);
+      const minutePad = pad(minute);
+      const secondPad = pad(second);
+
+      return `${dayStr}/${monthStr}/${yearStr}, ${hourStr12}:${minutePad}:${secondPad} ${ampm}`;
+    }
+
     const d = new Date(dateTime);
     if (isNaN(d.getTime())) return '';
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -376,7 +404,7 @@ export default function DashboardPage() {
                             <span className="font-medium text-white">{t('busTypeLabel')}:</span> {trip.bus_type}
                           </div>
                           <div>
-                            <span className="font-medium text-white">{t('departure')}:</span> {formatDateTime(trip.departure_time)}
+                            <span className="font-medium text-white">{t('departure')}:</span> {formatDateTime(trip.departure_time_local ?? trip.departure_time)}
                           </div>
                           <div>
                             {/* arrival time removed */}

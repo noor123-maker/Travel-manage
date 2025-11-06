@@ -67,7 +67,16 @@ export async function POST(req: Request) {
       }
     }
 
-    const insertObj = { company_id: user.id, ...payload };
+    const insertObj: any = {
+      ...payload,
+      company_id: user.id,
+    };
+
+    // If client included the original local wall-clock strings, keep them in
+    // the insert payload so they can be stored (recommended: add the
+    // `departure_time_local` and `arrival_time_local` TEXT columns in the DB).
+    if (payload.departure_time_local) insertObj.departure_time_local = payload.departure_time_local;
+    if (payload.arrival_time_local) insertObj.arrival_time_local = payload.arrival_time_local;
 
     const { data, error } = await supabaseAdmin.from('trips').insert(insertObj).select().single();
     if (error) {

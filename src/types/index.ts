@@ -27,6 +27,7 @@ export interface Trip {
   to_city: string;
   bus_type: string;
   departure_time: string;
+  departure_time_local?: string;
   contact_number?: string;
   price?: number;
   created_at: string;
@@ -43,6 +44,8 @@ export interface TripFormData {
   to_city: string;
   bus_type: string;
   departure_time: string;
+  // original 'datetime-local' wall-clock string (YYYY-MM-DDTHH:mm) when available
+  departure_time_local?: string;
   contact_number?: string;
 }
 
