@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { randomBytes } from 'crypto';
 
 export async function POST(req: Request) {
   try {
@@ -45,7 +46,9 @@ export async function POST(req: Request) {
     if (!existingCompany) {
       // create a minimal company record with id equal to auth user id
       const companyName = (user.user_metadata && (user.user_metadata as any).company_name) || user.email || 'Company';
-      const { error: createErr } = await supabaseAdmin.from('companies').insert({ id: user.id, name: companyName, email: user.email, contact_number: (user.user_metadata && (user.user_metadata as any).contact_number) || null }).select();
+      // Generate a secure random password to satisfy NOT NULL constraint. This value is not used for auth here.
+      const generatedPassword = randomBytes(16).toString('hex');
+      const { error: createErr } = await supabaseAdmin.from('companies').insert({ id: user.id, name: companyName, email: user.email, password: generatedPassword, contact_number: (user.user_metadata && (user.user_metadata as any).contact_number) || null }).select();
       if (createErr) {
         // If creating the company fails due to unique constraints or other issues, return the error
         return new Response(JSON.stringify({ error: createErr.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
