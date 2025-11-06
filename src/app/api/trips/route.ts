@@ -10,6 +10,16 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    // Log a redacted snapshot of the incoming payload for production diagnostics
+    try {
+      const redacted = { ...body } as any;
+      // remove any tokens or secrets if present
+      if (redacted.token) redacted.token = '[REDACTED]';
+      console.info('/api/trips incoming payload:', JSON.stringify(redacted));
+    } catch (e) {
+      // ignore logging errors
+    }
+
     // Ensure arrival_time is set (DB enforces NOT NULL). Default to departure_time when missing.
     const payload: any = { ...(body || {}) };
     if (!payload.arrival_time) {
@@ -43,13 +53,15 @@ export async function POST(req: Request) {
       .eq('id', user.id)
       .maybeSingle();
 
-    if (!existingCompany) {
+  if (!existingCompany) {
       // create a minimal company record with id equal to auth user id
       const companyName = (user.user_metadata && (user.user_metadata as any).company_name) || user.email || 'Company';
       // Generate a secure random password to satisfy NOT NULL constraint. This value is not used for auth here.
       const generatedPassword = randomBytes(16).toString('hex');
       const { error: createErr } = await supabaseAdmin.from('companies').insert({ id: user.id, name: companyName, email: user.email, password: generatedPassword, contact_number: (user.user_metadata && (user.user_metadata as any).contact_number) || null }).select();
       if (createErr) {
+        // Log creation error for diagnostics
+        console.error('/api/trips company creation error:', createErr);
         // If creating the company fails due to unique constraints or other issues, return the error
         return new Response(JSON.stringify({ error: createErr.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
@@ -59,12 +71,14 @@ export async function POST(req: Request) {
 
     const { data, error } = await supabaseAdmin.from('trips').insert(insertObj).select().single();
     if (error) {
+      // Log the failed insert and return the message
+      console.error('/api/trips insert error:', error);
       return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
     return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err: any) {
-    console.error('Error in /api/trips POST:', err);
+    console.error('Error in /api/trips POST:', err && err.stack ? err.stack : err);
     return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }

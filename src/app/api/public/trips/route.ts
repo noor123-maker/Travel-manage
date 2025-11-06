@@ -10,24 +10,24 @@ export async function GET() {
 
     const supabaseAdmin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    const now = new Date();
-    const nowIso = now.toISOString();
-    // Also include trips that were just created (last 24 hours) to avoid
-    // missing recently-added trips due to timezone differences or clock skew.
-    const createdSince = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-
+    const now = new Date().toISOString();
     const { data, error } = await supabaseAdmin
       .from('trips')
       .select(`*, company:companies(id, name, contact_number)`)
-      .or(`departure_time.gte.${nowIso},created_at.gte.${createdSince}`)
+      .gte('departure_time', now)
       .order('departure_time', { ascending: true });
 
     if (error) {
+      console.error('/api/public/trips supabase error:', error);
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 
+    // Log count for diagnostics
+    try { console.info(`/api/public/trips returning ${Array.isArray(data) ? data.length : 0} rows`); } catch {}
+
     return new Response(JSON.stringify(data || []), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err: any) {
+    console.error('/api/public/trips error:', err && err.stack ? err.stack : err);
     return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }
