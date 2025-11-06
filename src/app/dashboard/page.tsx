@@ -210,7 +210,24 @@ export default function DashboardPage() {
   };
 
   const formatDateTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleString();
+    if (!dateTime) return '';
+    const d = new Date(dateTime);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const day = pad(d.getDate());
+    const month = pad(d.getMonth() + 1);
+    const year = d.getFullYear();
+
+    // 12-hour time with seconds and AM/PM
+    let hours = d.getHours();
+    const minutes = pad(d.getMinutes());
+    const seconds = pad(d.getSeconds());
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+    const hourStr = pad(hours);
+
+    return `${day}/${month}/${year}, ${hourStr}:${minutes}:${seconds} ${ampm}`;
   };
 
   if (loading || translationsLoading) {

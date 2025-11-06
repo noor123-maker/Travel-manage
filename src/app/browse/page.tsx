@@ -32,17 +32,42 @@ export default function BrowsePage() {
   };
 
   const formatDateTime = (dateTime: string) => {
+    if (!dateTime) return '';
     const d = new Date(dateTime);
-    return d.toLocaleString();
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const day = pad(d.getDate());
+    const month = pad(d.getMonth() + 1);
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const minutes = pad(d.getMinutes());
+    const seconds = pad(d.getSeconds());
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+    const hourStr = pad(hours);
+    return `${day}/${month}/${year}, ${hourStr}:${minutes}:${seconds} ${ampm}`;
   };
   const formatDateOnly = (dateTime: string) => {
+    if (!dateTime) return '';
     const d = new Date(dateTime);
-    return d.toLocaleDateString();
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
   };
   const formatTimeOnly = (dateTime: string) => {
+    if (!dateTime) return '';
     const d = new Date(dateTime);
-    // Force 12-hour time with AM/PM
-    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    let hours = d.getHours();
+    const minutes = pad(d.getMinutes());
+    const seconds = pad(d.getSeconds());
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+    const hourStr = pad(hours);
+    return `${hourStr}:${minutes}:${seconds} ${ampm}`;
   };
 
   const handleCompanySelect = (companyName: string) => {
