@@ -9,6 +9,11 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    // Ensure arrival_time is set (DB enforces NOT NULL). Default to departure_time when missing.
+    const payload: any = { ...(body || {}) };
+    if (!payload.arrival_time) {
+      payload.arrival_time = payload.departure_time ?? new Date().toISOString();
+    }
 
     // Expect the client to pass the user's access token in Authorization: Bearer <token>
     const authHeader = req.headers.get('authorization') || '';
@@ -28,9 +33,9 @@ export async function POST(req: Request) {
     const user = userData.user;
 
     // Enforce that the company_id equals the authenticated user's id (same logic as client createTrip)
-    const insertObj = { company_id: user.id, ...body };
+  const insertObj = { company_id: user.id, ...payload };
 
-    const { data, error } = await supabaseAdmin.from('trips').insert(insertObj).select().single();
+  const { data, error } = await supabaseAdmin.from('trips').insert(insertObj).select().single();
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }

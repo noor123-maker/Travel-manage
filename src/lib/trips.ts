@@ -282,10 +282,14 @@ export async function createTrip(tripData: TripFormData): Promise<Trip> {
     }
 
     if (token) {
+      // prepare body: ensure arrival_time exists to satisfy DB NOT NULL
+      const sendBody: any = { ...tripData };
+      if (!sendBody.arrival_time) sendBody.arrival_time = sendBody.departure_time ?? new Date().toISOString();
+
       const res = await fetch('/api/trips', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(tripData),
+        body: JSON.stringify(sendBody),
       });
       const txt = await res.text();
       let json: any = null;
