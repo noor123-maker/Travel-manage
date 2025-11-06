@@ -176,12 +176,22 @@ export async function getAllTrips(): Promise<Trip[]> {
     let json: any = null;
     try { json = txt ? JSON.parse(txt) : null; } catch {}
     if (!res.ok) {
+      // If the server explicitly indicates the service key is missing, surface
+      // a helpful error so the UI shows it instead of silently falling back.
+      const errMsg = (json && json.error) ? json.error : (txt || `Server returned ${res.status}`);
+      if (typeof errMsg === 'string' && errMsg.toLowerCase().includes('service key')) {
+        throw new Error('Server misconfiguration: SUPABASE_SERVICE_KEY missing on the server. Set SUPABASE_SERVICE_KEY in your deployment (Vercel) and redeploy.');
+      }
       console.warn('Server /api/public/trips returned error, falling back to sample trips', json || txt);
       return getSampleTrips();
     }
 
     return json || [];
   } catch (err) {
+    // If we threw a helpful error above, bubble it up so the page can display it.
+    if (err instanceof Error && err.message && err.message.startsWith('Server misconfiguration')) {
+      throw err;
+    }
     console.warn('Failed to fetch public trips endpoint, returning sample data:', err);
     return getSampleTrips();
   }
