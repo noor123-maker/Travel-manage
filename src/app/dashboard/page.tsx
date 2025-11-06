@@ -99,8 +99,22 @@ export default function DashboardPage() {
     setFormLoading(true);
     try {
       // Client-side enforcement: if user has allowed_trips defined, check before attempting
-      if (user && typeof (user.allowed_trips) === 'number') {
-        if (trips.length >= user.allowed_trips) {
+      const userAllowed = (() => {
+        if (!user) return null;
+        const top = (user as any).allowed_trips;
+        const meta = (user as any).user_metadata?.allowed_trips;
+        // prefer numeric values; metadata might be string
+        if (typeof top === 'number') return top;
+        if (typeof meta === 'number') return meta;
+        if (typeof meta === 'string' && meta !== '') {
+          const n = Number(meta);
+          return Number.isFinite(n) ? n : null;
+        }
+        return null;
+      })();
+
+      if (userAllowed !== null && typeof userAllowed === 'number') {
+        if (trips.length >= userAllowed) {
           setMessage(t('tripLimitReached') || `You have reached your trip limit.`);
           setFormLoading(false);
           return;
@@ -248,9 +262,21 @@ export default function DashboardPage() {
 
           {/* Trips usage notice */}
           <div className="mb-4 text-sm text-white/70">
-            {user && typeof (user.allowed_trips) === 'number'
-              ? t('tripsUsedOfAllowed', { used: trips.length, allowed: user.allowed_trips })
-              : t('tripsUsedUnlimited', { used: trips.length })}
+            {(() => {
+              const top = (user as any).allowed_trips;
+              const meta = (user as any).user_metadata?.allowed_trips;
+              let allowed: number | null = null;
+              if (typeof top === 'number') allowed = top;
+              else if (typeof meta === 'number') allowed = meta;
+              else if (typeof meta === 'string' && meta !== '') {
+                const n = Number(meta);
+                allowed = Number.isFinite(n) ? n : null;
+              }
+
+              return allowed !== null && typeof allowed === 'number'
+                ? t('tripsUsedOfAllowed', { used: trips.length, allowed })
+                : t('tripsUsedUnlimited', { used: trips.length });
+            })()}
           </div>
 
           {message && (
