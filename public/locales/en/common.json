@@ -121,6 +121,9 @@
   ,"contactIntro": "If you need help with the app, reach out to the administrator below.",
   "contactName": "Ehsas",
   "contactLabel": "Contact",
+    "supportContact": "Support & Contact",
+    "settings": "Settings",
+    "logout": "Logout",
   "contactPhone": "0703783076",
   "contactDescription": "Available for support and questions about the Bus Travel Manager app."
   ,"focusedOnYou": "Focused on You — For a Better Travel Experience"

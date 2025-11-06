@@ -8,7 +8,9 @@ const config: CapacitorConfig = {
   // Set the environment variable CAPACITOR_SERVER_URL to override the default.
   // Example: CAPACITOR_SERVER_URL="http://192.168.1.5:3000" npx cap copy android
   server: {
-    url: process.env.CAPACITOR_SERVER_URL || 'http://10.10.10.170:3000'
+    // Use env override during development (CAPACITOR_SERVER_URL) or fall back
+    // to the deployed Vercel URL for convenience. Keep as a string.
+    url: process.env.CAPACITOR_SERVER_URL || 'https://travel-manage.vercel.app'
   }
 };
 

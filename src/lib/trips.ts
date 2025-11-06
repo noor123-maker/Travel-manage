@@ -269,21 +269,52 @@ export async function createTrip(tripData: TripFormData): Promise<Trip> {
   if (!user) {
     throw new Error('User not authenticated');
   }
+  // Prefer creating trips via a secure server API that uses the service role key
+  // This avoids row-level security policy failures when using client-side anon keys
+  try {
+    // Attempt to get session token so we can forward it to the server API
+    let token: string | null = null;
+    try {
+      const s = await (supabase as any).auth.getSession();
+      token = s?.data?.session?.access_token ?? null;
+    } catch (e) {
+      // ignore
+    }
 
-  const { data, error } = await supabase
-    .from('trips')
-    .insert({
-      company_id: user.id,
-      ...tripData
-    })
-    .select()
-    .single();
+    if (token) {
+      const res = await fetch('/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(tripData),
+      });
+      const txt = await res.text();
+      let json: any = null;
+      try { json = txt ? JSON.parse(txt) : null; } catch {}
+      if (!res.ok) {
+        throw new Error(json?.error || txt || `Server returned ${res.status}`);
+      }
+      return json;
+    }
 
-  if (error) {
-    throw new Error(`Failed to create trip: ${error.message}`);
+    // Fallback to direct client-side insert (may fail if RLS policies require different checks)
+    const { data, error } = await supabase
+      .from('trips')
+      .insert({
+        company_id: user.id,
+        ...tripData
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create trip: ${error.message}`);
+    }
+
+    return data;
+  } catch (err: any) {
+    // normalize error
+    throw new Error(err?.message || String(err));
   }
-
-  return data;
 }
 
 // Update an existing trip

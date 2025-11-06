@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import GlassCard from '@/components/GlassCard';
 import GlassButton from '@/components/GlassButton';
+import SettingsHeader from '@/components/SettingsHeader';
 
 export default function SettingsContact() {
   const router = useRouter();
@@ -59,6 +60,7 @@ export default function SettingsContact() {
   return (
     <div className="min-h-screen gradient-bg py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
+        <SettingsHeader />
         <h2 className="text-2xl font-bold text-white mb-4">Contact Number</h2>
         <GlassCard className="p-6">
           <form onSubmit={handleSave} className="space-y-4">

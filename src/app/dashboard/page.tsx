@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabaseClient';
 import { getCompanyTrips, createTrip, updateTrip, deleteTrip } from '@/lib/trips';
 import { Trip, TripFormData } from '@/types';
 import { useTranslation } from '@/hooks/useTranslation';
-import Navbar from '@/components/Navbar';
 import GlassCard from '@/components/GlassCard';
 import GlassButton from '@/components/GlassButton';
 import TripForm from '@/components/TripForm';
@@ -229,8 +228,6 @@ export default function DashboardPage() {
         <div className="absolute top-40 right-20 w-24 h-24 bg-blue-400/20 rounded-full blur-lg animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-purple-400/20 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }}></div>
       </div>
-
-      <Navbar user={user} onSignOut={handleSignOut} />
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 relative z-10">
         <motion.div

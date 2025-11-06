@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContext';
-import Navbar from '@/components/Navbar';
 import GlassCard from '@/components/GlassCard';
 import GlassButton from '@/components/GlassButton';
 import RouteTransition from '@/components/RouteTransition';
@@ -43,8 +42,6 @@ export default function Home() {
         <div className="absolute top-40 right-20 w-24 h-24 bg-blue-400/20 rounded-full blur-lg animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-purple-400/20 rounded-full blur-2xl animate-float" style={{ animationDelay: '4s' }}></div>
       </div>
-
-      <Navbar />
 
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen">

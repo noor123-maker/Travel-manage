@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import GlassCard from '@/components/GlassCard';
 import GlassButton from '@/components/GlassButton';
 import { useTranslation } from '@/hooks/useTranslation';
+import SettingsHeader from '@/components/SettingsHeader';
 
 export default function AllowedTripsPage() {
   const router = useRouter();
@@ -68,6 +69,7 @@ export default function AllowedTripsPage() {
   return (
     <div className="min-h-screen gradient-bg py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
+        <SettingsHeader />
         <h2 className="text-2xl font-bold text-white mb-4">{t('allowedTripsSection') || 'Allowed Trips'}</h2>
         <GlassCard className="p-6">
           <form onSubmit={handleSave} className="space-y-4">

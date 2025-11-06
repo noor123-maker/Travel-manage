@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import ClientAuthProvider from '@/components/ClientAuthProvider';
 import AndroidBackButtonHandler from '@/components/AndroidBackButtonHandler';
+import Navbar from '@/components/Navbar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,10 +39,13 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <LanguageProvider>
-            <ClientAuthProvider>
-              <AndroidBackButtonHandler />
-              {children}
-            </ClientAuthProvider>
+              <ClientAuthProvider>
+               <AndroidBackButtonHandler />
+              <Navbar />
+              <div className="pt-16">{/* reserve space for fixed navbar (h-16) */}
+                {children}
+              </div>
+             </ClientAuthProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/lib/supabaseClient";
 import * as companyStorage from '@/lib/companyStorage';
-import Navbar from "@/components/Navbar";
 import GlassCard from "@/components/GlassCard";
 import GlassButton from "@/components/GlassButton";
 
@@ -233,8 +232,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen gradient-bg relative overflow-hidden">
-      <Navbar />
-
       <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div className="max-w-md w-full" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <GlassCard className="p-8">
