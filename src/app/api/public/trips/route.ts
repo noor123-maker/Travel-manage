@@ -10,11 +10,16 @@ export async function GET() {
 
     const supabaseAdmin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    const now = new Date().toISOString();
+    const now = new Date();
+    const nowIso = now.toISOString();
+    // Also include trips that were just created (last 24 hours) to avoid
+    // missing recently-added trips due to timezone differences or clock skew.
+    const createdSince = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
     const { data, error } = await supabaseAdmin
       .from('trips')
       .select(`*, company:companies(id, name, contact_number)`)
-      .gte('departure_time', now)
+      .or(`departure_time.gte.${nowIso},created_at.gte.${createdSince}`)
       .order('departure_time', { ascending: true });
 
     if (error) {
